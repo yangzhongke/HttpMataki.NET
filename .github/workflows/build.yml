@@ -1,0 +1,50 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        dotnet-version: ['8.0.x']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+        
+    - name: Display .NET info
+      run: dotnet --info
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      
+    - name: Run Unit Tests
+      run: dotnet test tests/HttpMataki.NET.UnitTests/ --no-build --configuration Release --verbosity normal
+      
+    - name: Run Integration Tests
+      run: dotnet test tests/HttpMataki.NET.IntegrationTests/ --no-build --configuration Release --verbosity normal
+      
+    - name: Create NuGet Package
+      run: dotnet pack src/HttpMataki.NET/HttpMataki.NET.csproj --no-build --configuration Release --output ./packages
+      
+    - name: List created packages
+      run: ls -la ./packages/
+      
+    - name: Upload NuGet packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages-${{ matrix.dotnet-version }}
+        path: ./packages/*.nupkg
