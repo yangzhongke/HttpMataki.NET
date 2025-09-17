@@ -27,6 +27,8 @@
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
 
 </Project>
