@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <!-- NuGet Package Information -->
+    <PackageId>HttpMataki.NET</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>杨中科</Authors>
+    <Company>HttpMataki.NET</Company>
+    <Product>HttpMataki.NET</Product>
+    <Description>HttpMataki.NET— a silent observer of HTTP communications. It can fully record the headers and bodies of requests and responses without disrupting the program's execution.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/yangzhongke/HttpMataki.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yangzhongke/HttpMataki.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>http;observer;logging;monitoring;httpclient</PackageTags>
+    <PackageReleaseNotes>Initial release of HttpMataki.NET - HTTP communication observer.</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>
