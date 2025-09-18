@@ -1,7 +1,7 @@
 using System.Text;
 using Ude;
 
-namespace AI_2;
+namespace HttpMataki.NET;
 
 public static class FileHelpers
 {

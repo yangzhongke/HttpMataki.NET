@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMataki.NET", "src\HttpMataki.NET\HttpMataki.NET.csproj", "{C5BB5884-2D00-461F-8F2D-C1600EA4F057}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMataki.NET", "HttpMataki.NET\HttpMataki.NET.csproj", "{C5BB5884-2D00-461F-8F2D-C1600EA4F057}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F99D05BB-B968-4D04-8A12-68A3B43F3F14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMataki.NET.UnitTests", "HttpMataki.NET.UnitTests\HttpMataki.NET.UnitTests.csproj", "{02FBB5B0-E6BC-40EA-8FAE-82CADACC356E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMataki.NET.UnitTests", "tests\HttpMataki.NET.UnitTests\HttpMataki.NET.UnitTests.csproj", "{02FBB5B0-E6BC-40EA-8FAE-82CADACC356E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMataki.NET.IntegrationTests", "tests\HttpMataki.NET.IntegrationTests\HttpMataki.NET.IntegrationTests.csproj", "{8724E5AA-DAF6-4647-91D8-568622B4D65F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMataki.NET.IntegrationTests", "HttpMataki.NET.IntegrationTests\HttpMataki.NET.IntegrationTests.csproj", "{8724E5AA-DAF6-4647-91D8-568622B4D65F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

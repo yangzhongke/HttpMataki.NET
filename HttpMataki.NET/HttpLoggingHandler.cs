@@ -1,4 +1,4 @@
-namespace AI_2;
+namespace HttpMataki.NET;
 
 public class HttpLoggingHandler : DelegatingHandler
 {
@@ -27,6 +27,11 @@ public class HttpLoggingHandler : DelegatingHandler
         _logAction = logAction ?? throw new ArgumentNullException(nameof(logAction));
     }
 
+    private void WriteLine(string message)
+    {
+        _logAction($"{message}{Environment.NewLine}");
+    }
+    
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
@@ -35,23 +40,23 @@ public class HttpLoggingHandler : DelegatingHandler
             var requestMediaType = request.Content.Headers.ContentType?.MediaType;
             var requestCharset = request.Content.Headers.ContentType?.CharSet;
             var requestEncoding = EncodingHelper.GetEncodingFromContentType(requestCharset);
-
+            WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Request:");
             if (requestMediaType != null &&
                 (requestMediaType.StartsWith("text/") || requestMediaType == "application/json"))
             {
                 var requestBody = await request.Content.ReadAsStringAsync(cancellationToken);
-                _logAction($"Request: {request}\nBody: {requestBody}");
+                WriteLine($"Body: {requestBody}");
                 request.Content =
                     new StringContent(requestBody, requestEncoding, requestMediaType);
             }
             else
             {
-                _logAction($"Request: {request}\nContent-Type: {requestMediaType}");
+                WriteLine($"Content-Type: {requestMediaType}");
             }
         }
         else
         {
-            _logAction($"Request: {request}\n Empty Content");
+            WriteLine($"Body: Empty Content");
         }
 
         var response = await base.SendAsync(request, cancellationToken);
@@ -61,15 +66,16 @@ public class HttpLoggingHandler : DelegatingHandler
         var respCharset = respContentType?.CharSet;
         var respEncoding = EncodingHelper.GetEncodingFromContentType(respCharset);
 
+        WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Response:");
         if (respMediaType != null && (respMediaType.StartsWith("text/") || respMediaType == "application/json"))
         {
             var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-            _logAction($"Response: {response}\nBody: {responseBody}");
+            WriteLine($"Body: {responseBody}");
             response.Content = new StringContent(responseBody, respEncoding, respMediaType);
         }
         else
         {
-            _logAction($"Response: {response}\nContent-Type: {respMediaType}");
+            WriteLine($"Content-Type: {respMediaType}");
         }
 
         return response;

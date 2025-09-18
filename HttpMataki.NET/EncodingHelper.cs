@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace AI_2;
+namespace HttpMataki.NET;
 
 public static class EncodingHelper
 {
