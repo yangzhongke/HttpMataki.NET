@@ -65,7 +65,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release /p:Version=${{ steps.gitversion.outputs.AssemblySemVer }} /p:AssemblyVersion=${{ steps.gitversion.outputs.AssemblySemVer }} /p:InformationalVersion=${{ steps.gitversion.outputs.InformationalVersion }}
       
     - name: Pack
-      run: dotnet pack src/HttpMataki.NET/HttpMataki.NET.csproj --no-build --configuration Release /p:PackageVersion=${{ steps.gitversion.outputs.NuGetVersionV2 }} --output ./artifacts
+      run: dotnet pack HttpMataki.NET/HttpMataki.NET.csproj --no-build --configuration Release /p:PackageVersion=${{ steps.gitversion.outputs.NuGetVersionV2 }} --output ./artifacts
       
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
