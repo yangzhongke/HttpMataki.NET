@@ -44,7 +44,7 @@ public class HttpLoggingHandler : DelegatingHandler
             if (requestMediaType != null &&
                 (requestMediaType.StartsWith("text/") || requestMediaType == "application/json"))
             {
-                var requestBody = await request.Content.ReadAsStringAsync(cancellationToken);
+                var requestBody = await request.Content.ReadAsStringAsync();
                 WriteLine($"Body: {requestBody}");
                 request.Content =
                     new StringContent(requestBody, requestEncoding, requestMediaType);
@@ -69,7 +69,7 @@ public class HttpLoggingHandler : DelegatingHandler
         WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Response:");
         if (respMediaType != null && (respMediaType.StartsWith("text/") || respMediaType == "application/json"))
         {
-            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseBody = await response.Content.ReadAsStringAsync();
             WriteLine($"Body: {responseBody}");
             response.Content = new StringContent(responseBody, respEncoding, respMediaType);
         }
