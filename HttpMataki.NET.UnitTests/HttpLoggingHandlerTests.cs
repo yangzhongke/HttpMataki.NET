@@ -1,11 +1,4 @@
-using Xunit;
-using HttpMataki.NET;
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+namespace HttpMataki.NET.UnitTests;
 
 public class HttpLoggingHandlerTests
 {
