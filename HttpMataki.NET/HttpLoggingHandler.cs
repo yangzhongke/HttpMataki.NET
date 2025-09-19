@@ -1,7 +1,3 @@
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Formatting;
-
 namespace HttpMataki.NET;
 
 public class HttpLoggingHandler : DelegatingHandler
@@ -66,6 +62,10 @@ public class HttpLoggingHandler : DelegatingHandler
             if (string.IsNullOrWhiteSpace(requestMediaType))
             {
                 WriteLine("Null or empty Content-Type header.");
+                // Output raw body content
+                var rawBody = await request.Content.ReadAsStringAsync();
+                WriteLine($"Raw Body: {rawBody}");
+                request.Content = new StringContent(rawBody, requestEncoding);
             }
             else if (requestMediaType.StartsWith("multipart/form-data"))
             {
@@ -85,6 +85,10 @@ public class HttpLoggingHandler : DelegatingHandler
             else
             {
                 WriteLine($"Content-Type: {requestMediaType}");
+                // Output raw body content for unknown media types
+                var rawBody = await request.Content.ReadAsStringAsync();
+                WriteLine($"Raw Body: {rawBody}");
+                request.Content = new StringContent(rawBody, requestEncoding, requestMediaType);
             }
         }
         else
