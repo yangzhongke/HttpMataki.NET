@@ -62,14 +62,16 @@ public class HttpLoggingHandler : DelegatingHandler
             {
                 WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
             }
-            
-            // Handle file upload (multipart/form-data)
-            if (requestMediaType != null && requestMediaType.StartsWith("multipart/form-data"))
+
+            if (string.IsNullOrWhiteSpace(requestMediaType))
+            {
+                WriteLine("Null or empty Content-Type header.");
+            }
+            else if (requestMediaType.StartsWith("multipart/form-data"))
             {
                 await HandleMultipartContent(request.Content);
             }
-            else if (requestMediaType != null &&
-                (requestMediaType.StartsWith("text/") || requestMediaType == "application/json"))
+            else if (IsTextMediaType(requestMediaType))
             {
                 var requestBody = await request.Content.ReadAsStringAsync();
                 WriteLine($"Body: {requestBody}");
@@ -122,6 +124,15 @@ public class HttpLoggingHandler : DelegatingHandler
         }
         WriteLine(new string('*', 50));
         return response;
+    }
+
+    private static bool IsTextMediaType(string requestMediaType)
+    {
+        return requestMediaType.StartsWith("text/") 
+               || requestMediaType == "application/json" || requestMediaType.EndsWith("+json") 
+               || requestMediaType == "application/xml"|| requestMediaType.EndsWith("+xml")
+               || requestMediaType == "application/yaml"|| requestMediaType.EndsWith("+yaml")
+               || requestMediaType == "application/graphql";
     }
 
     private async Task HandleMultipartContent(HttpContent content)
