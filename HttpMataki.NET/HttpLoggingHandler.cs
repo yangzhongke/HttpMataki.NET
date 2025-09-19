@@ -273,13 +273,13 @@ public class HttpLoggingHandler : DelegatingHandler
                     var keyValue = pair.Split('=', 2);
                     if (keyValue.Length == 2)
                     {
-                        var key = Uri.UnescapeDataString(keyValue[0]);
-                        var value = Uri.UnescapeDataString(keyValue[1]);
+                        var key = Uri.UnescapeDataString(keyValue[0].Replace('+', ' '));
+                        var value = Uri.UnescapeDataString(keyValue[1].Replace('+', ' '));
                         WriteLine($"  {key}: {value}");
                     }
                     else if (keyValue.Length == 1)
                     {
-                        var key = Uri.UnescapeDataString(keyValue[0]);
+                        var key = Uri.UnescapeDataString(keyValue[0].Replace('+', ' '));
                         WriteLine($"  {key}: (no value)");
                     }
                 }
