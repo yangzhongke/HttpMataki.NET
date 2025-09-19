@@ -71,6 +71,10 @@ public class HttpLoggingHandler : DelegatingHandler
             {
                 await HandleMultipartContent(request.Content);
             }
+            else if (requestMediaType == "application/x-www-form-urlencoded")
+            {
+                await HandleUrlEncodedContent(request.Content);
+            }
             else if (IsTextMediaType(requestMediaType))
             {
                 var requestBody = await request.Content.ReadAsStringAsync();
@@ -175,6 +179,41 @@ public class HttpLoggingHandler : DelegatingHandler
         catch (Exception ex)
         {
             WriteLine($"Error processing multipart content: {ex.Message}");
+        }
+    }
+
+    private async Task HandleUrlEncodedContent(HttpContent content)
+    {
+        try
+        {
+            WriteLine("Form URL Encoded Content:");
+            var formData = await content.ReadAsStringAsync();
+            WriteLine($"Raw Data: {formData}");
+            
+            if (!string.IsNullOrEmpty(formData))
+            {
+                WriteLine("Parsed Form Fields:");
+                var pairs = formData.Split('&');
+                foreach (var pair in pairs)
+                {
+                    var keyValue = pair.Split('=', 2);
+                    if (keyValue.Length == 2)
+                    {
+                        var key = Uri.UnescapeDataString(keyValue[0]);
+                        var value = Uri.UnescapeDataString(keyValue[1]);
+                        WriteLine($"  {key}: {value}");
+                    }
+                    else if (keyValue.Length == 1)
+                    {
+                        var key = Uri.UnescapeDataString(keyValue[0]);
+                        WriteLine($"  {key}: (no value)");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            WriteLine($"Error processing URL encoded content: {ex.Message}");
         }
     }
 }
