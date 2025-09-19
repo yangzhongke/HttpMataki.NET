@@ -4,12 +4,12 @@ public class HttpLoggingHandler : DelegatingHandler
 {
     private readonly Action<string> _logAction;
 
-    public HttpLoggingHandler()
+    public HttpLoggingHandler():base(new HttpClientHandler())
     {
         _logAction = Console.WriteLine;
     }
 
-    public HttpLoggingHandler(string logFilePath)
+    public HttpLoggingHandler(string logFilePath):base(new HttpClientHandler())
     {
         if (string.IsNullOrWhiteSpace(logFilePath))
         {
@@ -22,7 +22,7 @@ public class HttpLoggingHandler : DelegatingHandler
         };
     }
 
-    public HttpLoggingHandler(Action<string> logAction)
+    public HttpLoggingHandler(Action<string> logAction):base(new HttpClientHandler())
     {
         _logAction = logAction ?? throw new ArgumentNullException(nameof(logAction));
     }
