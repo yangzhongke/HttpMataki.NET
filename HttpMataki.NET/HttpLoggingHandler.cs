@@ -273,6 +273,10 @@ public class HttpLoggingHandler : DelegatingHandler
                     var keyValue = pair.Split('=', 2);
                     if (keyValue.Length == 2)
                     {
+                        // application/x-www-form-urlencoded 编��规则：
+                        // 1. 空格被编码为 "+"
+                        // 2. 其他特殊字符使用 %XX 格式
+                        // 因此需要先将 "+" 替换为空格，再进行 URI 解码
                         var key = Uri.UnescapeDataString(keyValue[0].Replace('+', ' '));
                         var value = Uri.UnescapeDataString(keyValue[1].Replace('+', ' '));
                         WriteLine($"  {key}: {value}");
