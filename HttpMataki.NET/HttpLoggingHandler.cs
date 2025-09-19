@@ -1,3 +1,7 @@
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Formatting;
+
 namespace HttpMataki.NET;
 
 public class HttpLoggingHandler : DelegatingHandler
@@ -35,13 +39,36 @@ public class HttpLoggingHandler : DelegatingHandler
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
+        // Log request details
+        WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Request:");
+        WriteLine($"Method: {request.Method}");
+        WriteLine($"URL: {request.RequestUri}");
+        
+        // Log request headers
+        WriteLine("Headers:");
+        foreach (var header in request.Headers)
+        {
+            WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
+        }
+
         if (request.Content != null)
         {
             var requestMediaType = request.Content.Headers.ContentType?.MediaType;
             var requestCharset = request.Content.Headers.ContentType?.CharSet;
             var requestEncoding = EncodingHelper.GetEncodingFromContentType(requestCharset);
-            WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Request:");
-            if (requestMediaType != null &&
+            
+            // Log content headers
+            foreach (var header in request.Content.Headers)
+            {
+                WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
+            }
+            
+            // Handle file upload (multipart/form-data)
+            if (requestMediaType != null && requestMediaType.StartsWith("multipart/form-data"))
+            {
+                await HandleMultipartContent(request.Content);
+            }
+            else if (requestMediaType != null &&
                 (requestMediaType.StartsWith("text/") || requestMediaType == "application/json"))
             {
                 var requestBody = await request.Content.ReadAsStringAsync();
@@ -61,12 +88,28 @@ public class HttpLoggingHandler : DelegatingHandler
 
         var response = await base.SendAsync(request, cancellationToken);
 
+        // Log response details
+        WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Response:");
+        WriteLine($"Status Code: {(int)response.StatusCode} {response.StatusCode}");
+        
+        // Log response headers
+        WriteLine("Headers:");
+        foreach (var header in response.Headers)
+        {
+            WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
+        }
+
         var respContentType = response.Content.Headers.ContentType;
         var respMediaType = respContentType?.MediaType;
         var respCharset = respContentType?.CharSet;
         var respEncoding = EncodingHelper.GetEncodingFromContentType(respCharset);
 
-        WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Response:");
+        // Log content headers
+        foreach (var header in response.Content.Headers)
+        {
+            WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
+        }
+
         if (respMediaType != null && (respMediaType.StartsWith("text/") || respMediaType == "application/json"))
         {
             var responseBody = await response.Content.ReadAsStringAsync();
@@ -77,7 +120,50 @@ public class HttpLoggingHandler : DelegatingHandler
         {
             WriteLine($"Content-Type: {respMediaType}");
         }
-
+        WriteLine(new string('*', 50));
         return response;
+    }
+
+    private async Task HandleMultipartContent(HttpContent content)
+    {
+        try
+        {
+            WriteLine("Multipart Form Data Content:");
+            var provider = new MultipartMemoryStreamProvider();
+            var multipartContent = await content.ReadAsMultipartAsync(provider);
+            foreach (var part in multipartContent.Contents)
+            {
+                var contentDisposition = part.Headers.ContentDisposition;
+                var contentType = part.Headers.ContentType?.MediaType;
+                if (contentDisposition != null)
+                {
+                    var fieldName = contentDisposition.Name?.Trim('"');
+                    var fileName = contentDisposition.FileName?.Trim('"');
+                    WriteLine($"  Field: {fieldName}");
+                    if (!string.IsNullOrEmpty(fileName))
+                    {
+                        WriteLine($"  Original FileName: {fileName}");
+                        WriteLine($"  Content-Type: {contentType}");
+                        var tempDir = Path.Combine(Path.GetTempPath(), "HttpMataki_Uploads");
+                        Directory.CreateDirectory(tempDir);
+                        var tempFileName = $"{Guid.NewGuid()}_{fileName}";
+                        var tempFilePath = Path.Combine(tempDir, tempFileName);
+                        var fileBytes = await part.ReadAsByteArrayAsync();
+                        await File.WriteAllBytesAsync(tempFilePath, fileBytes);
+                        WriteLine($"  Saved to: {tempFilePath}");
+                        WriteLine($"  File Size: {fileBytes.Length} bytes");
+                    }
+                    else
+                    {
+                        var fieldValue = await part.ReadAsStringAsync();
+                        WriteLine($"  Value: {fieldValue}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            WriteLine($"Error processing multipart content: {ex.Message}");
+        }
     }
 }
