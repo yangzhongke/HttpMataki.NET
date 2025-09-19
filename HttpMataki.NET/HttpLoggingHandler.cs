@@ -120,7 +120,19 @@ public class HttpLoggingHandler : DelegatingHandler
             WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
         }
 
-        if (respMediaType != null && (respMediaType.StartsWith("text/") || respMediaType == "application/json"))
+        if(string.IsNullOrWhiteSpace(respMediaType))
+        {
+            WriteLine("Null or empty Content-Type header.");
+            // Output raw body content
+            var rawBody = await response.Content.ReadAsStringAsync();
+            WriteLine($"Raw Body: {rawBody}");
+            response.Content = new StringContent(rawBody, respEncoding);
+        }
+        else if (IsImageMediaType(respMediaType))
+        {
+            await HandleImageResponse(response, respMediaType);
+        }
+        else if (IsTextMediaType(respMediaType))
         {
             var responseBody = await response.Content.ReadAsStringAsync();
             WriteLine($"Body: {responseBody}");
@@ -129,6 +141,9 @@ public class HttpLoggingHandler : DelegatingHandler
         else
         {
             WriteLine($"Content-Type: {respMediaType}");
+            var rawBody = await response.Content.ReadAsStringAsync();
+            WriteLine($"Raw Body: {rawBody}");
+            response.Content = new StringContent(rawBody, respEncoding, respMediaType);
         }
         WriteLine(new string('*', 50));
         return response;
@@ -141,6 +156,61 @@ public class HttpLoggingHandler : DelegatingHandler
                || requestMediaType == "application/xml"|| requestMediaType.EndsWith("+xml")
                || requestMediaType == "application/yaml"|| requestMediaType.EndsWith("+yaml")
                || requestMediaType == "application/graphql";
+    }
+
+    private static bool IsImageMediaType(string mediaType)
+    {
+        return mediaType.StartsWith("image/");
+    }
+
+    private async Task HandleImageResponse(HttpResponseMessage response, string mediaType)
+    {
+        try
+        {
+            WriteLine($"Image Content Type: {mediaType}");
+            
+            var imageBytes = await response.Content.ReadAsByteArrayAsync();
+            WriteLine($"Image Size: {imageBytes.Length} bytes");
+            
+            // Create temp directory for images
+            var tempDir = Path.Combine(Path.GetTempPath(), "HttpMataki_Images");
+            Directory.CreateDirectory(tempDir);
+            
+            // Generate file name with appropriate extension
+            var extension = GetImageExtension(mediaType);
+            var tempFileName = $"{Guid.NewGuid()}{extension}";
+            var tempFilePath = Path.Combine(tempDir, tempFileName);
+            
+            // Save image to temp file
+            await File.WriteAllBytesAsync(tempFilePath, imageBytes);
+            WriteLine($"Image saved to: {tempFilePath}");
+            
+            // Recreate content to preserve the response
+            response.Content = new ByteArrayContent(imageBytes);
+            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mediaType);
+        }
+        catch (Exception ex)
+        {
+            WriteLine($"Error processing image response: {ex.Message}");
+        }
+    }
+
+    private static string GetImageExtension(string mediaType)
+    {
+        return mediaType.ToLower() switch
+        {
+            "image/jpeg" => ".jpg",
+            "image/jpg" => ".jpg",
+            "image/png" => ".png",
+            "image/gif" => ".gif",
+            "image/bmp" => ".bmp",
+            "image/webp" => ".webp",
+            "image/svg+xml" => ".svg",
+            "image/tiff" => ".tiff",
+            "image/ico" => ".ico",
+            "image/x-icon" => ".ico",
+            _ => ".img"
+        };
     }
 
     private async Task HandleMultipartContent(HttpContent content)
