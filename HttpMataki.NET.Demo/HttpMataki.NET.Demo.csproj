@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HttpMataki.NET\HttpMataki.NET.csproj" />
+    <ProjectReference Include="..\HttpMataki.NET.Auto\HttpMataki.NET.Auto.csproj" />
   </ItemGroup>
 
   <ItemGroup>
