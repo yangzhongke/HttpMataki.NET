@@ -185,7 +185,7 @@ public class HttpLoggingHandler : DelegatingHandler
             var tempFilePath = Path.Combine(tempDir, tempFileName);
 
             // Save image to temp file
-            await File.WriteAllBytesAsync(tempFilePath, imageBytes);
+            await FileHelpers.WriteAllBytesAsync(tempFilePath, imageBytes);
             WriteLine($"Image saved to: {tempFilePath}");
 
             // Recreate content to preserve the response
@@ -241,7 +241,7 @@ public class HttpLoggingHandler : DelegatingHandler
                         var tempFileName = $"{Guid.NewGuid()}_{fileName}";
                         var tempFilePath = Path.Combine(tempDir, tempFileName);
                         var fileBytes = await part.ReadAsByteArrayAsync();
-                        await File.WriteAllBytesAsync(tempFilePath, fileBytes);
+                        await FileHelpers.WriteAllBytesAsync(tempFilePath, fileBytes);
                         WriteLine($"  Saved to: {tempFilePath}");
                         WriteLine($"  File Size: {fileBytes.Length} bytes");
                     }
@@ -273,7 +273,7 @@ public class HttpLoggingHandler : DelegatingHandler
                 var pairs = formData.Split('&');
                 foreach (var pair in pairs)
                 {
-                    var keyValue = pair.Split('=', 2);
+                    var keyValue = pair.Split('=');
                     if (keyValue.Length == 2)
                     {
                         // application/x-www-form-urlencoded encoding rules:
