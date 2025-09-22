@@ -5,8 +5,8 @@ using HttpMataki.NET.Auto;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
 
-//await BasicDemo1Async();
-//await RefitApiDemoAsync();
+await BasicDemo1Async();
+await RefitApiDemoAsync();
 await HarmonyAutoInterceptionDemoAsync();
 
 async Task BasicDemo1Async()
