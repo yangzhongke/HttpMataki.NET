@@ -9,15 +9,15 @@
         <PackageId>HttpMataki.NET</PackageId>
         <Version>1.0.0</Version>
         <Authors>Zack Yang</Authors>
-        <Company>HttpMataki.NET</Company>
+        <Company>Zack Yang</Company>
         <Product>HttpMataki.NET</Product>
-        <Description>HttpMataki.NET— a silent observer of HTTP communications. It can fully record the headers and bodies of requests and responses without disrupting the program's execution.</Description>
+        <Description>HttpMataki.NET - Manual HTTP logging handler for HttpClient. Use when you need explicit control or when HttpMataki.NET.Auto doesn't work in your environment. Requires manual configuration but offers maximum compatibility across all .NET versions.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/yangzhongke/HttpMataki.NET</PackageProjectUrl>
         <RepositoryUrl>https://github.com/yangzhongke/HttpMataki.NET</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>http;observer;logging;monitoring;httpclient</PackageTags>
-        <PackageReleaseNotes>Initial release of HttpMataki.NET - HTTP communication observer.</PackageReleaseNotes>
+        <PackageTags>http;observer;logging;monitoring;httpclient;manual;explicit-control</PackageTags>
+        <PackageReleaseNotes>Manual HTTP logging handler - use when you need explicit control over logging or maximum compatibility.</PackageReleaseNotes>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
