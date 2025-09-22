@@ -1,14 +1,12 @@
-using HttpMataki.NET.IntegrationTests.Infrastructure;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using Xunit;
+using HttpMataki.NET.IntegrationTests.Infrastructure;
 
 namespace HttpMataki.NET.IntegrationTests.Tests;
 
 /// <summary>
-/// Integration tests for basic HTTP requests using WireMock server
-/// Based on BasicDemo1Async() from the demo project
+///     Integration tests for basic HTTP requests using WireMock server
+///     Based on BasicDemo1Async() from the demo project
 /// </summary>
 public class BasicHttpRequestWireMockTests : WireMockTestBase
 {
@@ -27,7 +25,7 @@ public class BasicHttpRequestWireMockTests : WireMockTestBase
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
         var textContent = "Hello, this is plain text!";
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = new StringContent(textContent, Encoding.UTF8, "text/plain")
@@ -56,7 +54,7 @@ public class BasicHttpRequestWireMockTests : WireMockTestBase
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
         var jsonContent = "{\"name\":\"Mataki\",\"type\":\"json\"}";
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = new StringContent(jsonContent, Encoding.UTF8, "application/json")
@@ -106,14 +104,14 @@ public class BasicHttpRequestWireMockTests : WireMockTestBase
         // Arrange
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
-        
+
         var multipartContent = new MultipartFormDataContent();
         var fileBytes = Encoding.UTF8.GetBytes("This is a demo file.");
         var fileContent = new ByteArrayContent(fileBytes);
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
         multipartContent.Add(fileContent, "file", "demo.txt");
         multipartContent.Add(new StringContent("field value"), "textField");
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = multipartContent
@@ -142,7 +140,7 @@ public class BasicHttpRequestWireMockTests : WireMockTestBase
         // Arrange
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
-        
+
         var formData = new List<KeyValuePair<string, string>>
         {
             new("name", "Mataki"),
@@ -150,7 +148,7 @@ public class BasicHttpRequestWireMockTests : WireMockTestBase
             new("age", "28")
         };
         var formContent = new FormUrlEncodedContent(formData);
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = formContent
@@ -226,7 +224,7 @@ public class BasicHttpRequestWireMockTests : WireMockTestBase
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
         var graphqlQuery = "query { user(id: 1) { name email } }";
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/graphql")
         {
             Content = new StringContent(graphqlQuery, Encoding.UTF8, "application/graphql")
@@ -266,7 +264,7 @@ public class BasicHttpRequestWireMockTests : WireMockTestBase
             "Request:",
             "Response:"
         );
-        
+
         // Should handle large responses without issues
         var responseContent = await response.Content.ReadAsStringAsync();
         Assert.Contains("items", responseContent);
@@ -279,7 +277,7 @@ public class BasicHttpRequestWireMockTests : WireMockTestBase
         // Arrange
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = new StringContent("test content", Encoding.UTF8, "text/plain")

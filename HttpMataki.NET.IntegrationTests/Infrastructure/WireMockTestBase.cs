@@ -1,18 +1,15 @@
 using WireMock.Admin.Requests;
+using WireMock.Logging;
 using WireMock.Server;
 using WireMock.Settings;
-using WireMock.Logging;
-using Xunit;
 
 namespace HttpMataki.NET.IntegrationTests.Infrastructure;
 
 /// <summary>
-/// Base class for WireMock integration tests providing common server setup and teardown
+///     Base class for WireMock integration tests providing common server setup and teardown
 /// </summary>
 public abstract class WireMockTestBase : IDisposable
 {
-    protected WireMockServer Server { get; private set; }
-    protected string ServerUrl => Server.Url!;
     protected readonly List<string> LogMessages = new();
 
     protected WireMockTestBase()
@@ -26,19 +23,33 @@ public abstract class WireMockTestBase : IDisposable
         });
     }
 
-    /// <summary>
-    /// Create HttpLoggingHandler that captures log messages for testing
-    /// </summary>
-    protected HttpMataki.NET.HttpLoggingHandler CreateTestHandler()
-        => new HttpMataki.NET.HttpLoggingHandler(message => LogMessages.Add(message));
+    protected WireMockServer Server { get; }
+    protected string ServerUrl => Server.Url!;
+
+    public virtual void Dispose()
+    {
+        Server?.Stop();
+        Server?.Dispose();
+    }
 
     /// <summary>
-    /// Clear all log messages
+    ///     Create HttpLoggingHandler that captures log messages for testing
     /// </summary>
-    protected void ClearLogs() => LogMessages.Clear();
+    protected HttpLoggingHandler CreateTestHandler()
+    {
+        return new HttpLoggingHandler(message => LogMessages.Add(message));
+    }
 
     /// <summary>
-    /// Assert that log messages contain expected content
+    ///     Clear all log messages
+    /// </summary>
+    protected void ClearLogs()
+    {
+        LogMessages.Clear();
+    }
+
+    /// <summary>
+    ///     Assert that log messages contain expected content
     /// </summary>
     protected void AssertLogContains(string expectedContent)
     {
@@ -46,7 +57,7 @@ public abstract class WireMockTestBase : IDisposable
     }
 
     /// <summary>
-    /// Assert that log messages contain all expected contents
+    ///     Assert that log messages contain all expected contents
     /// </summary>
     protected void AssertLogContainsAll(params string[] expectedContents)
     {
@@ -55,16 +66,10 @@ public abstract class WireMockTestBase : IDisposable
             AssertLogContains(content);
         }
     }
-
-    public virtual void Dispose()
-    {
-        Server?.Stop();
-        Server?.Dispose();
-    }
 }
 
 /// <summary>
-/// Null logger for WireMock to suppress console output during tests
+///     Null logger for WireMock to suppress console output during tests
 /// </summary>
 internal class WireMockNullLogger : IWireMockLogger
 {

@@ -1,12 +1,12 @@
-using HttpMataki.NET.IntegrationTests.Infrastructure;
-using System.Net.Http;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
-using Xunit;
+using HttpMataki.NET.IntegrationTests.Infrastructure;
 
 namespace HttpMataki.NET.IntegrationTests.Tests;
 
 /// <summary>
-/// Integration tests for error handling and special scenarios using WireMock server
+///     Integration tests for error handling and special scenarios using WireMock server
 /// </summary>
 public class SpecialScenariosWireMockTests : WireMockTestBase
 {
@@ -30,7 +30,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         var response = await client.GetAsync($"{ServerUrl}/error/404");
 
         // Assert
-        Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         AssertLogContainsAll(
             "GET",
             "/error/404",
@@ -52,7 +52,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         var response = await client.GetAsync($"{ServerUrl}/error/500");
 
         // Assert
-        Assert.Equal(System.Net.HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         AssertLogContainsAll(
             "GET",
             "/error/500",
@@ -69,7 +69,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         // Arrange
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = new StringContent("Content without explicit type", Encoding.UTF8)
@@ -97,12 +97,12 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
         var binaryData = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }; // PNG header
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = new ByteArrayContent(binaryData)
         };
-        request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
         // Act
         var response = await client.SendAsync(request);
@@ -126,7 +126,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
         var chineseContent = "这是中文测试内容，用于验证编码处理";
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = new StringContent(chineseContent, Encoding.UTF8, "text/plain")
@@ -152,7 +152,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
         var jsonWithUnicode = "{\"message\":\"Hello 世界\",\"emoji\":\"🌍\",\"special\":\"café\"}";
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = new StringContent(jsonWithUnicode, Encoding.UTF8, "application/json")
@@ -177,7 +177,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         // Arrange
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
-        
+
         var formData = new List<KeyValuePair<string, string>>
         {
             new("name", "Test User"),
@@ -186,7 +186,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
             new("unicode", "Unicode: 测试用户")
         };
         var formContent = new FormUrlEncodedContent(formData);
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
         {
             Content = formContent
@@ -212,7 +212,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         // Arrange
         var handler = CreateTestHandler();
         using var client = new HttpClient(handler);
-        
+
         // Create a large string (1MB)
         var largeContent = new string('A', 1024 * 1024);
         var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
@@ -232,7 +232,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
             "Request:",
             "Response:"
         );
-        
+
         // Verify that large content is handled (at least partially logged)
         Assert.Contains(LogMessages, msg => msg.Contains("AAAA"));
     }
@@ -252,10 +252,10 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         // Assert
         var requestCount = LogMessages.Count(msg => msg.Contains("Request:"));
         var responseCount = LogMessages.Count(msg => msg.Contains("Response:"));
-        
+
         Assert.Equal(3, requestCount);
         Assert.Equal(3, responseCount);
-        
+
         AssertLogContainsAll(
             "GET",
             "POST",
@@ -280,7 +280,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         Assert.True(response.IsSuccessStatusCode);
         Assert.NotNull(content);
         Assert.NotEmpty(content);
-        
+
         // Verify the response content can still be read after logging
         Assert.Contains("Test Post Title", content);
         AssertLogContainsAll(

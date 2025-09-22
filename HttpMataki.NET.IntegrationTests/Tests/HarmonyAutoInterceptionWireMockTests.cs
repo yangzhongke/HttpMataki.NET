@@ -1,14 +1,12 @@
 using HttpMataki.NET.Auto;
 using HttpMataki.NET.IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
-using Xunit;
 
 namespace HttpMataki.NET.IntegrationTests.Tests;
 
 /// <summary>
-/// Integration tests for Harmony auto-interception using WireMock server
-/// Based on HarmonyAutoInterceptionDemoAsync() from the demo project
+///     Integration tests for Harmony auto-interception using WireMock server
+///     Based on HarmonyAutoInterceptionDemoAsync() from the demo project
 /// </summary>
 [Collection("Harmony Tests")]
 public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
@@ -18,9 +16,9 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
         // Setup all required endpoints
         TestDataHelper.SetupJsonPlaceholderEndpoints(Server);
         TestDataHelper.SetupPostEcho(Server);
-        
+
         // Start Harmony interception with custom logging for testing
-        HttpClientAutoInterceptor.StartInterception(() => new HttpMataki.NET.HttpLoggingHandler(message => LogMessages.Add(message)));
+        HttpClientAutoInterceptor.StartInterception(() => new HttpLoggingHandler(message => LogMessages.Add(message)));
     }
 
     [Fact]
@@ -44,8 +42,8 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
     {
         // Arrange
         ClearLogs();
-        var customHandler = new HttpClientHandler() { UseCookies = false };
-        
+        var customHandler = new HttpClientHandler { UseCookies = false };
+
         // Act - Test 2: HttpClient with custom handler
         using var client2 = new HttpClient(customHandler);
         await client2.GetAsync($"{ServerUrl}/posts/2");
@@ -68,7 +66,7 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
         services.AddHttpClient("test");
         var provider = services.BuildServiceProvider();
         var factory = provider.GetRequiredService<IHttpClientFactory>();
-        
+
         // Act - Test 4: HttpClientFactory
         using var client4 = factory.CreateClient("test");
         await client4.GetAsync($"{ServerUrl}/posts/3");
@@ -88,9 +86,9 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
         // Arrange
         ClearLogs();
         var tasks = new List<Task>();
-        
+
         // Act - Create multiple HttpClient instances concurrently
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             var index = i;
             tasks.Add(Task.Run(async () =>
@@ -99,7 +97,7 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
                 await client.GetAsync($"{ServerUrl}/posts/{index + 1}");
             }));
         }
-        
+
         await Task.WhenAll(tasks);
 
         // Assert
@@ -151,6 +149,7 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
         {
             HttpClientAutoInterceptor.StopInterception();
         }
+
         base.Dispose();
     }
 }

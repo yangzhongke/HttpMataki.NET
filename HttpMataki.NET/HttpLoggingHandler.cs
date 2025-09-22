@@ -1,15 +1,17 @@
+using System.Net.Http.Headers;
+
 namespace HttpMataki.NET;
 
 public class HttpLoggingHandler : DelegatingHandler
 {
     private readonly Action<string> _logAction;
 
-    public HttpLoggingHandler():base(new HttpClientHandler())
+    public HttpLoggingHandler() : base(new HttpClientHandler())
     {
         _logAction = Console.WriteLine;
     }
 
-    public HttpLoggingHandler(string logFilePath):base(new HttpClientHandler())
+    public HttpLoggingHandler(string logFilePath) : base(new HttpClientHandler())
     {
         if (string.IsNullOrWhiteSpace(logFilePath))
         {
@@ -22,7 +24,7 @@ public class HttpLoggingHandler : DelegatingHandler
         };
     }
 
-    public HttpLoggingHandler(Action<string> logAction):base(new HttpClientHandler())
+    public HttpLoggingHandler(Action<string> logAction) : base(new HttpClientHandler())
     {
         _logAction = logAction ?? throw new ArgumentNullException(nameof(logAction));
     }
@@ -31,7 +33,7 @@ public class HttpLoggingHandler : DelegatingHandler
     {
         _logAction($"{message}{Environment.NewLine}");
     }
-    
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
@@ -39,7 +41,7 @@ public class HttpLoggingHandler : DelegatingHandler
         WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Request:");
         WriteLine($"Method: {request.Method}");
         WriteLine($"URL: {request.RequestUri}");
-        
+
         // Log request headers
         WriteLine("Headers:");
         foreach (var header in request.Headers)
@@ -52,7 +54,7 @@ public class HttpLoggingHandler : DelegatingHandler
             var requestMediaType = request.Content.Headers.ContentType?.MediaType;
             var requestCharset = request.Content.Headers.ContentType?.CharSet;
             var requestEncoding = EncodingHelper.GetEncodingFromContentType(requestCharset);
-            
+
             // Log content headers
             foreach (var header in request.Content.Headers)
             {
@@ -93,7 +95,7 @@ public class HttpLoggingHandler : DelegatingHandler
         }
         else
         {
-            WriteLine($"Body: Empty Content");
+            WriteLine("Body: Empty Content");
         }
 
         var response = await base.SendAsync(request, cancellationToken);
@@ -101,7 +103,7 @@ public class HttpLoggingHandler : DelegatingHandler
         // Log response details
         WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Response:");
         WriteLine($"Status Code: {(int)response.StatusCode} {response.StatusCode}");
-        
+
         // Log response headers
         WriteLine("Headers:");
         foreach (var header in response.Headers)
@@ -120,7 +122,7 @@ public class HttpLoggingHandler : DelegatingHandler
             WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
         }
 
-        if(string.IsNullOrWhiteSpace(respMediaType))
+        if (string.IsNullOrWhiteSpace(respMediaType))
         {
             WriteLine("Null or empty Content-Type header.");
             // Output raw body content
@@ -145,16 +147,17 @@ public class HttpLoggingHandler : DelegatingHandler
             WriteLine($"Raw Body: {rawBody}");
             response.Content = new StringContent(rawBody, respEncoding, respMediaType);
         }
+
         WriteLine(new string('*', 50));
         return response;
     }
 
     private static bool IsTextMediaType(string requestMediaType)
     {
-        return requestMediaType.StartsWith("text/") 
-               || requestMediaType == "application/json" || requestMediaType.EndsWith("+json") 
-               || requestMediaType == "application/xml"|| requestMediaType.EndsWith("+xml")
-               || requestMediaType == "application/yaml"|| requestMediaType.EndsWith("+yaml")
+        return requestMediaType.StartsWith("text/")
+               || requestMediaType == "application/json" || requestMediaType.EndsWith("+json")
+               || requestMediaType == "application/xml" || requestMediaType.EndsWith("+xml")
+               || requestMediaType == "application/yaml" || requestMediaType.EndsWith("+yaml")
                || requestMediaType == "application/graphql";
     }
 
@@ -168,26 +171,26 @@ public class HttpLoggingHandler : DelegatingHandler
         try
         {
             WriteLine($"Image Content Type: {mediaType}");
-            
+
             var imageBytes = await response.Content.ReadAsByteArrayAsync();
             WriteLine($"Image Size: {imageBytes.Length} bytes");
-            
+
             // Create temp directory for images
             var tempDir = Path.Combine(Path.GetTempPath(), "HttpMataki_Images");
             Directory.CreateDirectory(tempDir);
-            
+
             // Generate file name with appropriate extension
             var extension = GetImageExtension(mediaType);
             var tempFileName = $"{Guid.NewGuid()}{extension}";
             var tempFilePath = Path.Combine(tempDir, tempFileName);
-            
+
             // Save image to temp file
             await File.WriteAllBytesAsync(tempFilePath, imageBytes);
             WriteLine($"Image saved to: {tempFilePath}");
-            
+
             // Recreate content to preserve the response
             response.Content = new ByteArrayContent(imageBytes);
-            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mediaType);
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
         }
         catch (Exception ex)
         {
@@ -263,7 +266,7 @@ public class HttpLoggingHandler : DelegatingHandler
             WriteLine("Form URL Encoded Content:");
             var formData = await content.ReadAsStringAsync();
             WriteLine($"Raw Data: {formData}");
-            
+
             if (!string.IsNullOrEmpty(formData))
             {
                 WriteLine("Parsed Form Fields:");

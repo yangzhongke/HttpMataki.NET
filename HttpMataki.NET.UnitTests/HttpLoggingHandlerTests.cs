@@ -1,3 +1,7 @@
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
+
 namespace HttpMataki.NET.UnitTests;
 
 public class HttpLoggingHandlerTests
@@ -13,7 +17,7 @@ public class HttpLoggingHandlerTests
     public void Constructor_LogFilePath_SetsFileLogAction()
     {
         var tempFile = Path.GetTempFileName();
-        var handler = new HttpLoggingHandler((string)tempFile);
+        var handler = new HttpLoggingHandler(tempFile);
         Assert.NotNull(handler);
         File.Delete(tempFile);
     }
@@ -35,30 +39,30 @@ public class HttpLoggingHandlerTests
     {
         var logs = new List<string>();
         Action<string> logAction = msg => logs.Add(msg);
-        var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent("response body", System.Text.Encoding.UTF8, "application/json")
+            Content = new StringContent("response body", Encoding.UTF8, "application/json")
         };
         responseMessage.Headers.Add("Custom-Response-Header", "response-value");
-        
-        var handler = new HttpLoggingHandler((Action<string>)logAction)
+
+        var handler = new HttpLoggingHandler(logAction)
         {
             InnerHandler = new DummyHandler(responseMessage)
         };
         using var client = new HttpClient(handler);
-        var content = new StringContent("test body", System.Text.Encoding.UTF8, "application/json");
+        var content = new StringContent("test body", Encoding.UTF8, "application/json");
         var request = new HttpRequestMessage(HttpMethod.Post, "http://test") { Content = content };
         request.Headers.Add("Custom-Request-Header", "request-value");
-        
+
         await client.SendAsync(request);
-        
+
         // Assert Request logs
         Assert.Contains(logs, l => l.Contains("Request:"));
         Assert.Contains(logs, l => l.Contains("Method: POST"));
         Assert.Contains(logs, l => l.Contains("URL: http://test/"));
         Assert.Contains(logs, l => l.Contains("Custom-Request-Header: request-value"));
         Assert.Contains(logs, l => l.Contains("Body: test body"));
-        
+
         // Assert Response logs
         Assert.Contains(logs, l => l.Contains("Response:"));
         Assert.Contains(logs, l => l.Contains("Status Code: 200 OK"));
@@ -71,26 +75,26 @@ public class HttpLoggingHandlerTests
     {
         var logs = new List<string>();
         Action<string> logAction = msg => logs.Add(msg);
-        var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-        
-        var handler = new HttpLoggingHandler((Action<string>)logAction)
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+
+        var handler = new HttpLoggingHandler(logAction)
         {
             InnerHandler = new DummyHandler(responseMessage)
         };
-        
+
         using var client = new HttpClient(handler);
-        
+
         // Create multipart form data content with file
         var multipartContent = new MultipartFormDataContent();
-        var fileContent = new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("test file content"));
-        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("test file content"));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
         multipartContent.Add(fileContent, "file", "test.txt");
         multipartContent.Add(new StringContent("field value"), "textField");
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, "http://test") { Content = multipartContent };
-        
+
         await client.SendAsync(request);
-        
+
         // Assert multipart content logs
         Assert.Contains(logs, l => l.Contains("Multipart Form Data Content:"));
         Assert.Contains(logs, l => l.Contains("Field: file"));
@@ -107,15 +111,15 @@ public class HttpLoggingHandlerTests
     {
         var logs = new List<string>();
         Action<string> logAction = msg => logs.Add(msg);
-        var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-        
-        var handler = new HttpLoggingHandler((Action<string>)logAction)
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+
+        var handler = new HttpLoggingHandler(logAction)
         {
             InnerHandler = new DummyHandler(responseMessage)
         };
-        
+
         using var client = new HttpClient(handler);
-        
+
         // Create URL encoded form data
         var formData = new List<KeyValuePair<string, string>>
         {
@@ -124,11 +128,11 @@ public class HttpLoggingHandlerTests
             new("age", "30")
         };
         var content = new FormUrlEncodedContent(formData);
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, "http://test") { Content = content };
-        
+
         await client.SendAsync(request);
-        
+
         // Assert URL encoded content logs
         Assert.Contains(logs, l => l.Contains("Form URL Encoded Content:"));
         Assert.Contains(logs, l => l.Contains("Raw Data:"));
@@ -143,27 +147,27 @@ public class HttpLoggingHandlerTests
     {
         var logs = new List<string>();
         Action<string> logAction = msg => logs.Add(msg);
-        
+
         // Create a fake image response
         var imageBytes = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }; // JPEG header
         var imageContent = new ByteArrayContent(imageBytes);
-        imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
-        
-        var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+        imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
         {
             Content = imageContent
         };
-        
-        var handler = new HttpLoggingHandler((Action<string>)logAction)
+
+        var handler = new HttpLoggingHandler(logAction)
         {
             InnerHandler = new DummyHandler(responseMessage)
         };
-        
+
         using var client = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "http://test/image.jpg");
-        
+
         await client.SendAsync(request);
-        
+
         // Assert image response logs
         Assert.Contains(logs, l => l.Contains("Image Content Type: image/jpeg"));
         Assert.Contains(logs, l => l.Contains("Image Size: 4 bytes"));
@@ -176,23 +180,23 @@ public class HttpLoggingHandlerTests
     {
         var logs = new List<string>();
         Action<string> logAction = msg => logs.Add(msg);
-        var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-        
-        var handler = new HttpLoggingHandler((Action<string>)logAction)
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+
+        var handler = new HttpLoggingHandler(logAction)
         {
             InnerHandler = new DummyHandler(responseMessage)
         };
-        
+
         using var client = new HttpClient(handler);
-        
+
         // Create content without Content-Type header
         var content = new StringContent("raw content");
         content.Headers.ContentType = null;
-        
+
         var request = new HttpRequestMessage(HttpMethod.Post, "http://test") { Content = content };
-        
+
         await client.SendAsync(request);
-        
+
         // Assert handling of null/empty content type
         Assert.Contains(logs, l => l.Contains("Null or empty Content-Type header."));
         Assert.Contains(logs, l => l.Contains("Raw Body: raw content"));
@@ -203,22 +207,22 @@ public class HttpLoggingHandlerTests
     {
         var logs = new List<string>();
         Action<string> logAction = msg => logs.Add(msg);
-        var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-        
-        var handler = new HttpLoggingHandler((Action<string>)logAction)
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+
+        var handler = new HttpLoggingHandler(logAction)
         {
             InnerHandler = new DummyHandler(responseMessage)
         };
-        
+
         using var client = new HttpClient(handler);
-        
+
         // Create content with unknown Content-Type
-        var content = new StringContent("binary data", System.Text.Encoding.UTF8, "application/octet-stream");
-        
+        var content = new StringContent("binary data", Encoding.UTF8, "application/octet-stream");
+
         var request = new HttpRequestMessage(HttpMethod.Post, "http://test") { Content = content };
-        
+
         await client.SendAsync(request);
-        
+
         // Assert handling of unknown content type
         Assert.Contains(logs, l => l.Contains("Content-Type: application/octet-stream"));
         Assert.Contains(logs, l => l.Contains("Raw Body: binary data"));
@@ -229,23 +233,23 @@ public class HttpLoggingHandlerTests
     {
         var logs = new List<string>();
         Action<string> logAction = msg => logs.Add(msg);
-        var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent("xml response", System.Text.Encoding.UTF8, "application/xml")
+            Content = new StringContent("xml response", Encoding.UTF8, "application/xml")
         };
-        
-        var handler = new HttpLoggingHandler((Action<string>)logAction)
+
+        var handler = new HttpLoggingHandler(logAction)
         {
             InnerHandler = new DummyHandler(responseMessage)
         };
-        
+
         using var client = new HttpClient(handler);
-        
-        var content = new StringContent("xml request", System.Text.Encoding.UTF8, "text/xml");
+
+        var content = new StringContent("xml request", Encoding.UTF8, "text/xml");
         var request = new HttpRequestMessage(HttpMethod.Post, "http://test") { Content = content };
-        
+
         await client.SendAsync(request);
-        
+
         // Assert text content handling
         Assert.Contains(logs, l => l.Contains("Body: xml request"));
         Assert.Contains(logs, l => l.Contains("Body: xml response"));
@@ -256,18 +260,18 @@ public class HttpLoggingHandlerTests
     {
         var logs = new List<string>();
         Action<string> logAction = msg => logs.Add(msg);
-        var responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-        
-        var handler = new HttpLoggingHandler((Action<string>)logAction)
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+
+        var handler = new HttpLoggingHandler(logAction)
         {
             InnerHandler = new DummyHandler(responseMessage)
         };
-        
+
         using var client = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "http://test");
-        
+
         await client.SendAsync(request);
-        
+
         // Assert separator is logged
         Assert.Contains(logs, l => l.Contains("**************************************************"));
     }
@@ -278,7 +282,7 @@ public class HttpLoggingHandlerTests
 
         public DummyHandler()
         {
-            _response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            _response = new HttpResponseMessage(HttpStatusCode.OK);
         }
 
         public DummyHandler(HttpResponseMessage response)
@@ -286,7 +290,8 @@ public class HttpLoggingHandlerTests
             _response = response ?? throw new ArgumentNullException(nameof(response));
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             return Task.FromResult(_response);
         }

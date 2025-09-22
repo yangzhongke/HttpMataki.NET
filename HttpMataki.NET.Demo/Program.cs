@@ -1,9 +1,9 @@
 ﻿using System.Net.Http.Headers;
+using System.Text;
 using HttpMataki.NET;
 using HttpMataki.NET.Auto;
-using System.Text;
-using Refit;
 using Microsoft.Extensions.DependencyInjection;
+using Refit;
 
 //await BasicDemo1Async();
 //await RefitApiDemoAsync();
@@ -67,13 +67,13 @@ async Task BasicDemo1Async()
 async Task RefitApiDemoAsync()
 {
     Console.WriteLine("**********Refit API Client Demo**********");
-    
+
     var handler = new HttpLoggingHandler();
     using var client = new HttpClient(handler)
     {
         BaseAddress = new Uri("https://jsonplaceholder.typicode.com")
     };
-    
+
     var api = RestService.For<IJsonPlaceholderApi>(client);
     var newPost = new Post
     {
@@ -92,7 +92,7 @@ async Task HarmonyAutoInterceptionDemoAsync()
 
     // Enable automatic interception
     HttpClientAutoInterceptor.StartInterception();
-    
+
     try
     {
         Console.WriteLine("--- Test 1: Direct HttpClient creation ---");
@@ -102,7 +102,7 @@ async Task HarmonyAutoInterceptionDemoAsync()
 
         Console.WriteLine("\n--- Test 2: HttpClient with custom handler ---");
         // Even with a custom handler, it will be wrapped with HttpLoggingHandler
-        var customHandler = new HttpClientHandler() { UseCookies = false };
+        var customHandler = new HttpClientHandler { UseCookies = false };
         using var client2 = new HttpClient(customHandler);
         await client2.GetAsync("https://jsonplaceholder.typicode.com/posts/2");
 
@@ -110,7 +110,7 @@ async Task HarmonyAutoInterceptionDemoAsync()
         // Refit creates HttpClient internally - it will also be intercepted
         using var client3 = new HttpClient { BaseAddress = new Uri("https://jsonplaceholder.typicode.com") };
         var api = RestService.For<IJsonPlaceholderApi>(client3);
-        
+
         var newPost = new Post
         {
             UserId = 1,
@@ -144,7 +144,7 @@ async Task HarmonyAutoInterceptionDemoAsync()
 async Task SimulateThirdPartyLibraryAsync()
 {
     Console.WriteLine("Simulating third-party library that creates HttpClient internally...");
-    
+
     // This represents a library method that you can't modify
     // but it creates HttpClient internally - it will still be logged!
     await SomeThirdPartyApiWrapperAsync("https://jsonplaceholder.typicode.com/users");
@@ -156,18 +156,17 @@ async Task SomeThirdPartyApiWrapperAsync(string baseUrl)
     // This simulates what a third-party library might do:
     // Create HttpClient internally without exposing configuration
     using var httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
-    
+
     // Make some requests
     var response = await httpClient.GetAsync("/1");
     var content = await response.Content.ReadAsStringAsync();
-    
+
     Console.WriteLine($"Third-party library got response: {content.Substring(0, Math.Min(100, content.Length))}...");
 }
 
 // API interface for JSONPlaceholder
 public interface IJsonPlaceholderApi
 {
-   
     [Post("/posts")]
     Task<Post> CreatePostAsync([Body] Post post);
 }

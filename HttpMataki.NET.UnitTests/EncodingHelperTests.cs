@@ -8,7 +8,7 @@ public class EncodingHelperTests
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
-    
+
     [Theory]
     [InlineData("utf-8", "utf-8")]
     [InlineData("gb2312", "gb2312")]
