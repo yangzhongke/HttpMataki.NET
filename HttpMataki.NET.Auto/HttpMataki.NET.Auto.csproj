@@ -4,6 +4,24 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
+        <!-- NuGet Package Information -->
+        <PackageId>HttpMataki.NET.Auto</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Zack Yang</Authors>
+        <Company>HttpMataki.NET</Company>
+        <Product>HttpMataki.NET.Auto</Product>
+        <Description>HttpMataki.NET.Auto - Automatic HTTP logging interceptor using Harmony. Silently observes all HTTP communications without code changes, providing zero-configuration monitoring for HttpClient instances.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/yangzhongke/HttpMataki.NET</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/yangzhongke/HttpMataki.NET</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>http;observer;logging;monitoring;httpclient;harmony;automatic;interception</PackageTags>
+        <PackageReleaseNotes>Initial release of HttpMataki.NET.Auto - Automatic HTTP communication interceptor with zero code changes required.</PackageReleaseNotes>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
