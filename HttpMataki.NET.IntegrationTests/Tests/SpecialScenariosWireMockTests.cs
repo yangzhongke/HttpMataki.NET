@@ -16,6 +16,7 @@ public class SpecialScenariosWireMockTests : WireMockTestBase
         TestDataHelper.SetupPostEcho(Server);
         TestDataHelper.SetupErrorResponses(Server);
         TestDataHelper.SetupContentTypeResponses(Server);
+        TestDataHelper.SetupJsonPlaceholderEndpoints(Server);
     }
 
     [Fact]

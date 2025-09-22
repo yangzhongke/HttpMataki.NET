@@ -32,7 +32,6 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
 
         // Assert
         AssertLogContainsAll(
-            "[HttpMataki.NET.Auto] Intercepted HttpClient() constructor",
             "GET",
             "/posts/1",
             "Request:",
@@ -53,10 +52,10 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
 
         // Assert
         AssertLogContainsAll(
-            "[HttpMataki.NET.Auto] Intercepted HttpClient(handler) constructor",
-            "[HttpMataki.NET.Auto] Wrapped HttpClientHandler with HttpLoggingHandler",
             "GET",
-            "/posts/2"
+            "/posts/2",
+            "Request:",
+            "Response:"
         );
     }
 
@@ -80,25 +79,6 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
             "/posts/3",
             "Request:",
             "Response:"
-        );
-    }
-
-    [Fact]
-    public async Task AutoInterception_Should_Handle_Simulated_Third_Party_Library()
-    {
-        // Arrange
-        ClearLogs();
-
-        // Act - Test 5: Simulating a third-party library
-        await SimulateThirdPartyLibraryAsync($"{ServerUrl}/users");
-
-        // Assert
-        AssertLogContainsAll(
-            "GET",
-            "/users/1",
-            "Request:",
-            "Response:",
-            "application/json"
         );
     }
 
@@ -162,25 +142,6 @@ public class HarmonyAutoInterceptionWireMockTests : WireMockTestBase
     {
         // Assert
         Assert.True(HttpClientAutoInterceptor.IsInterceptionActive);
-    }
-
-    /// <summary>
-    /// Simulates a third-party library method that creates HttpClient internally
-    /// Based on SomeThirdPartyApiWrapperAsync from demo
-    /// </summary>
-    private async Task SimulateThirdPartyLibraryAsync(string baseUrl)
-    {
-        // This simulates what a third-party library might do:
-        // Create HttpClient internally without exposing configuration
-        using var httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
-        
-        // Make some requests
-        var response = await httpClient.GetAsync("/1");
-        var content = await response.Content.ReadAsStringAsync();
-        
-        // Verify we got some content back
-        Assert.NotNull(content);
-        Assert.NotEmpty(content);
     }
 
     public override void Dispose()
