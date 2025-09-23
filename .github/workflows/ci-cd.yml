@@ -28,7 +28,9 @@ jobs:
       
     - name: Test
       run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
-
+    - name: Debug event name
+      run: echo "Event name is ${{ github.event_name }}"
+    
   pack:
     runs-on: ubuntu-latest
     needs: test
