@@ -37,8 +37,11 @@ jobs:
     - name: Run Integration Tests
       run: dotnet test HttpMataki.NET.IntegrationTests/ --no-build --configuration Release --verbosity normal
       
-    - name: Create NuGet Package
+    - name: Create NuGet Package - HttpMataki.NET
       run: dotnet pack HttpMataki.NET/HttpMataki.NET.csproj --no-build --configuration Release --output ./packages
+      
+    - name: Create NuGet Package - HttpMataki.NET.Auto
+      run: dotnet pack HttpMataki.NET.Auto/HttpMataki.NET.Auto.csproj --no-build --configuration Release --output ./packages
       
     - name: List created packages
       run: ls -la ./packages/
