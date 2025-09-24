@@ -36,8 +36,6 @@ public static class HttpClientAutoInterceptor
 
             PatchHttpClientConstructors();
             IsInterceptionActive = true;
-
-            Console.WriteLine("[HttpMataki.NET.Auto] HttpClient automatic interception started");
         }
     }
 
