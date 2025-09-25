@@ -44,9 +44,6 @@ jobs:
     - name: Create NuGet Package - HttpMataki.NET.Auto
       run: dotnet pack HttpMataki.NET.Auto/HttpMataki.NET.Auto.csproj --no-build --configuration Release --output ./packages
       
-    - name: List created packages
-      run: ls -la ./packages/
-      
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
       with:
