@@ -1,18 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-
+        <TargetFrameworks>net462;net48;net5.0;net9.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
-        <PackageReference Include="WireMock.Net" Version="1.12.0"/>
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
         <PackageReference Include="xunit" Version="2.4.2"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    </ItemGroup>
+
+    <!-- Framework-specific test runner packages -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net48'">
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="3.2.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net9.0'">
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -21,13 +34,35 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0"/>
+    </ItemGroup>
+
+    <!-- Framework-specific package references -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net48'">
+        <!-- WireMock.Net version compatible with .NET Framework -->
+        <PackageReference Include="WireMock.Net" Version="1.5.62"/>
+        <!-- Microsoft.Extensions.DependencyInjection for .NET Framework -->
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.32"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net9.0'">
+        <!-- Latest WireMock.Net for modern .NET -->
+        <PackageReference Include="WireMock.Net" Version="1.12.0"/>
+        <!-- Modern Microsoft.Extensions.DependencyInjection -->
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\HttpMataki.NET.Auto\HttpMataki.NET.Auto.csproj"/>
-        <ProjectReference Include="..\HttpMataki.NET\HttpMataki.NET.csproj"/>
+        <ProjectReference Include="..\HttpMataki.NET\HttpMataki.NET.csproj" />
+    </ItemGroup>
+
+    <!-- Only reference HttpMataki.NET.Auto for frameworks that support it -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net9.0'">
+        <ProjectReference Include="..\HttpMataki.NET.Auto\HttpMataki.NET.Auto.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Tests\FrameworkCompatibilityValidationTests.cs" />
+      <Compile Remove="Tests\HttpLoggingHandlerCompatibilityTests.cs" />
+      <Compile Remove="Tests\NetFrameworkCompatibilityTests.cs" />
     </ItemGroup>
 
 </Project>

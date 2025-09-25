@@ -8,11 +8,12 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     strategy:
       matrix:
         dotnet-version: ['9.0.x']
+        target-framework: ['net462', 'net48', 'net5.0', 'net9.0']
     
     steps:
     - uses: actions/checkout@v4
@@ -34,8 +35,8 @@ jobs:
     - name: Run Unit Tests
       run: dotnet test HttpMataki.NET.UnitTests/ --no-build --configuration Release --verbosity normal
       
-    - name: Run Integration Tests
-      run: dotnet test HttpMataki.NET.IntegrationTests/ --no-build --configuration Release --verbosity normal
+    - name: Run Integration Tests - ${{ matrix.target-framework }}
+      run: dotnet test HttpMataki.NET.IntegrationTests/ --no-build --configuration Release --framework ${{ matrix.target-framework }} --verbosity normal
       
     - name: Create NuGet Package - HttpMataki.NET
       run: dotnet pack HttpMataki.NET/HttpMataki.NET.csproj --no-build --configuration Release --output ./packages
@@ -49,5 +50,5 @@ jobs:
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
       with:
-        name: nuget-packages-${{ matrix.dotnet-version }}
+        name: nuget-packages-${{ matrix.target-framework }}
         path: ./packages/*.nupkg

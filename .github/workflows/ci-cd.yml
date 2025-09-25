@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
       run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
     
   pack:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: test
     if: github.event_name == 'release'
     
@@ -72,7 +72,7 @@ jobs:
         path: ./artifacts/*.nupkg
 
   publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: pack
     if: github.event_name == 'release'
     
