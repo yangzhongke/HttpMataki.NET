@@ -27,7 +27,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
       
     - name: Test
-      run: dotnet test -configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test --verbosity normal --collect:"XPlat Code Coverage"
     
   pack:
     runs-on: windows-latest

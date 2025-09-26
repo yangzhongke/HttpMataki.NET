@@ -16,7 +16,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-    
+    # windows-lastest has .NET Framework pre-installed. No need to install it.
     - name: Setup .NET 5.0.x
       uses: actions/setup-dotnet@v4
       with:
