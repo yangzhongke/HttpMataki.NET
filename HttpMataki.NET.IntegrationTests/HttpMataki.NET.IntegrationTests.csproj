@@ -8,9 +8,9 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
-        <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
         <PackageReference Include="xunit" Version="2.4.2"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="WireMock.Net" Version="1.5.0"/>
     </ItemGroup>
 
     <!-- Framework-specific test runner packages -->
@@ -38,13 +38,11 @@
 
     <!-- Framework-specific package references -->
     <ItemGroup Condition="'$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net48'">
-        <!-- WireMock.Net version compatible with .NET Framework -->
-        <PackageReference Include="WireMock.Net" Version="1.5.62"/>
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net9.0'">
-        <!-- Latest WireMock.Net for modern .NET -->
-        <PackageReference Include="WireMock.Net" Version="1.12.0"/>
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>

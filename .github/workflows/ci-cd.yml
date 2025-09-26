@@ -27,7 +27,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
       
     - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test -configuration Release --verbosity normal --collect:"XPlat Code Coverage"
     
   pack:
     runs-on: windows-latest
@@ -60,10 +60,10 @@ jobs:
       run: dotnet build --no-restore --configuration Release /p:Version=${{ steps.gitversion.outputs.AssemblySemVer }} /p:AssemblyVersion=${{ steps.gitversion.outputs.AssemblySemVer }} /p:InformationalVersion=${{ steps.gitversion.outputs.InformationalVersion }}
       
     - name: Pack HttpMataki.NET
-      run: dotnet pack HttpMataki.NET/HttpMataki.NET.csproj --no-build --configuration Release /p:PackageVersion=${{ steps.gitversion.outputs.NuGetVersionV2 }} --output ./artifacts
+      run: dotnet pack HttpMataki.NET/HttpMataki.NET.csproj --configuration Release /p:PackageVersion=${{ steps.gitversion.outputs.NuGetVersionV2 }} --output ./artifacts
       
     - name: Pack HttpMataki.NET
-      run: dotnet pack HttpMataki.NET.Auto/HttpMataki.NET.Auto.csproj --no-build --configuration Release /p:PackageVersion=${{ steps.gitversion.outputs.NuGetVersionV2 }} --output ./artifacts
+      run: dotnet pack HttpMataki.NET.Auto/HttpMataki.NET.Auto.csproj --configuration Release /p:PackageVersion=${{ steps.gitversion.outputs.NuGetVersionV2 }} --output ./artifacts
       
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

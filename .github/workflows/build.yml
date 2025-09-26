@@ -33,16 +33,16 @@ jobs:
       run: dotnet build --no-restore --configuration Release
       
     - name: Run Unit Tests
-      run: dotnet test HttpMataki.NET.UnitTests/ --no-build --configuration Release --verbosity normal
+      run: dotnet test HttpMataki.NET.UnitTests/ --configuration Release --verbosity normal
       
     - name: Run Integration Tests - ${{ matrix.target-framework }}
-      run: dotnet test HttpMataki.NET.IntegrationTests/ --no-build --configuration Release --framework ${{ matrix.target-framework }} --verbosity normal
+      run: dotnet test HttpMataki.NET.IntegrationTests/ --configuration Release --framework ${{ matrix.target-framework }} --verbosity normal
       
     - name: Create NuGet Package - HttpMataki.NET
-      run: dotnet pack HttpMataki.NET/HttpMataki.NET.csproj --no-build --configuration Release --output ./packages
+      run: dotnet pack HttpMataki.NET/HttpMataki.NET.csproj --configuration Release --output ./packages
       
     - name: Create NuGet Package - HttpMataki.NET.Auto
-      run: dotnet pack HttpMataki.NET.Auto/HttpMataki.NET.Auto.csproj --no-build --configuration Release --output ./packages
+      run: dotnet pack HttpMataki.NET.Auto/HttpMataki.NET.Auto.csproj --configuration Release --output ./packages
       
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
