@@ -40,15 +40,11 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net48'">
         <!-- WireMock.Net version compatible with .NET Framework -->
         <PackageReference Include="WireMock.Net" Version="1.5.62"/>
-        <!-- Microsoft.Extensions.DependencyInjection for .NET Framework -->
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.32"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net9.0'">
         <!-- Latest WireMock.Net for modern .NET -->
         <PackageReference Include="WireMock.Net" Version="1.12.0"/>
-        <!-- Modern Microsoft.Extensions.DependencyInjection -->
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
