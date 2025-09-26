@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        dotnet-version: [‘4.6.2’, '4.8.1', '5.0.x', '9.0.x']
+        dotnet-version: ['5.0.x', '9.0.x']
         target-framework: ['net462', 'net48', 'net5.0', 'net9.0']
     
     steps:
