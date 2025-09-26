@@ -2,7 +2,7 @@
 
 English | [中文](README_CN.md)
 
-HttpMataki.NET— a silent observer of HTTP communications. It can fully record the headers and bodies of requests and responses without disrupting the program's execution.
+HttpMataki.NET— a silent observer of HTTP communications. It can fully record the headers and bodies of requests and responses without disrupting the program's execution. It supports HTTPS (no need to configure or trust any certificates).
 
 ## Installation
 
@@ -96,13 +96,11 @@ var response = await client.PostAsync("https://api.example.com/users",
 
 1. **HttpMataki.NET.Auto not working?**
    - Try using HttpMataki.NET instead
-   - Check if your application uses custom HttpClient configurations that might interfere
    - Ensure the interceptor is initialized early in your application lifecycle
 
 2. **Missing logs?**
    - Verify the logging action is properly configured
    - Check if the HTTP requests are actually being made through HttpClient
-   - Ensure the handler is properly added to the HttpClient pipeline
 
 ## License
 

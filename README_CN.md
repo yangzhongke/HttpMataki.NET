@@ -2,7 +2,7 @@
 
 [English](README.md) | 中文
 
-HttpMataki.NET— HTTP 通信的无声观察者。它能够完整记录请求和响应的头部和主体，而不会中断程序的执行。
+HttpMataki.NET— .NET程序的HTTP 通信的无声观察者。它能够完整记录请求和响应的头部和主体，而不会中断程序的执行。支持Https（无需配置或者信任任何证书）。
 
 ## 安装
 
@@ -96,13 +96,11 @@ var response = await client.PostAsync("https://api.example.com/users",
 
 1. **HttpMataki.NET.Auto 不工作？**
    - 尝试使用 HttpMataki.NET 替代
-   - 检查您的应用程序是否使用了可能干扰的自定义 HttpClient 配置
    - 确保拦截器在应用程序生命周期的早期初始化
 
 2. **缺少日志？**
    - 验证日志记录操作是否正确配置
    - 检查 HTTP 请求是否确实通过 HttpClient 发起
-   - 确保处理器正确添加到 HttpClient 管道中
 
 ## 许可证
 
