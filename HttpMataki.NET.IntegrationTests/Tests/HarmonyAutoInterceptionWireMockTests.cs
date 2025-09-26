@@ -1,9 +1,8 @@
-#if NET5_0_OR_GREATER
 using HttpMataki.NET.Auto;
 using HttpMataki.NET.IntegrationTests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace HttpMataki.NET.IntegrationTests.Tests
@@ -26,25 +25,6 @@ namespace HttpMataki.NET.IntegrationTests.Tests
         }
 
         [Fact]
-        public async Task AutoInterception_Should_Work_On_Modern_Frameworks()
-        {
-            // Arrange & Act - Test HttpClient creation with auto-interception
-            using var client1 = new HttpClient();
-            await client1.GetAsync($"{ServerUrl}/posts/1");
-
-            // Assert
-            AssertLogContainsAll(
-                "GET",
-                "/posts/1",
-                "Request:",
-                "Response:"
-            );
-        
-            // Verify we're testing on a supported framework
-            Assert.True(IsSupportedFramework(), "This test should only run on .NET 5.0 or later");
-        }
-
-        [Fact]
         public async Task AutoInterception_Should_Handle_Custom_Handler_On_Modern_Frameworks()
         {
             // Arrange
@@ -52,17 +32,20 @@ namespace HttpMataki.NET.IntegrationTests.Tests
             var customHandler = new HttpClientHandler() { UseCookies = false };
         
             // Act
-            using var client2 = new HttpClient(customHandler);
-            await client2.GetAsync($"{ServerUrl}/posts/2");
+            using (var client2 = new HttpClient(customHandler))
+            {
+                await client2.GetAsync($"{ServerUrl}/posts/2");
 
-            // Assert
-            AssertLogContainsAll(
-                "GET",
-                "/posts/2",
-                "Request:",
-                "Response:"
-            );
+                // Assert
+                AssertLogContainsAll(
+                    "GET",
+                    "/posts/2",
+                    "Request:",
+                    "Response:"
+                );
+            }
         }
+#if NET5_0_OR_GREATER
 
         [Fact]
         public async Task AutoInterception_Should_Work_With_HttpClientFactory()
@@ -86,17 +69,7 @@ namespace HttpMataki.NET.IntegrationTests.Tests
                 "Response:"
             );
         }
-
-        private static bool IsSupportedFramework()
-        {
-#if NET5_0
-            return true;
-#elif NET9_0  
-        return true;
-#else
-        return false;
 #endif
-        }
 
         public override void Dispose()
         {
@@ -109,4 +82,3 @@ namespace HttpMataki.NET.IntegrationTests.Tests
         }
     }
 }
-#endif

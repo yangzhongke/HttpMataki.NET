@@ -47,10 +47,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\HttpMataki.NET\HttpMataki.NET.csproj" />
-    </ItemGroup>
-
-    <!-- Only reference HttpMataki.NET.Auto for frameworks that support it -->
-    <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net9.0'">
         <ProjectReference Include="..\HttpMataki.NET.Auto\HttpMataki.NET.Auto.csproj" />
     </ItemGroup>
     <ItemGroup>

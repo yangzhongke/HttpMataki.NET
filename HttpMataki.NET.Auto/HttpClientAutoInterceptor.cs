@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System.Net.Http;
+using HarmonyLib;
 
 namespace HttpMataki.NET.Auto;
 
