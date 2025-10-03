@@ -1,293 +1,319 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using HttpMataki.NET.IntegrationTests.Infrastructure;
+using Xunit;
 
-namespace HttpMataki.NET.IntegrationTests.Tests;
-
-/// <summary>
-///     Integration tests for error handling and special scenarios using WireMock server
-/// </summary>
-public class SpecialScenariosWireMockTests : WireMockTestBase
+namespace HttpMataki.NET.IntegrationTests.Tests
 {
-    public SpecialScenariosWireMockTests()
+    /// <summary>
+    ///     Integration tests for error handling and special scenarios using WireMock server
+    /// </summary>
+    public class SpecialScenariosWireMockTests : WireMockTestBase
     {
-        // Setup all required endpoints including error scenarios
-        TestDataHelper.SetupPostEcho(Server);
-        TestDataHelper.SetupErrorResponses(Server);
-        TestDataHelper.SetupContentTypeResponses(Server);
-        TestDataHelper.SetupJsonPlaceholderEndpoints(Server);
-    }
-
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Log_404_Error_Response()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
-
-        // Act
-        var response = await client.GetAsync($"{ServerUrl}/error/404");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        AssertLogContainsAll(
-            "GET",
-            "/error/404",
-            "404",
-            "Not Found",
-            "Request:",
-            "Response:"
-        );
-    }
-
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Log_500_Error_Response()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
-
-        // Act
-        var response = await client.GetAsync($"{ServerUrl}/error/500");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-        AssertLogContainsAll(
-            "GET",
-            "/error/500",
-            "500",
-            "Internal Server Error",
-            "Request:",
-            "Response:"
-        );
-    }
-
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Handle_Empty_Content_Type()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+        public SpecialScenariosWireMockTests()
         {
-            Content = new StringContent("Content without explicit type", Encoding.UTF8)
-        };
-        // Remove content type to simulate null content type
-        request.Content.Headers.ContentType = null;
+            // Setup all required endpoints including error scenarios
+            TestDataHelper.SetupPostEcho(Server);
+            TestDataHelper.SetupErrorResponses(Server);
+            TestDataHelper.SetupContentTypeResponses(Server);
+            TestDataHelper.SetupJsonPlaceholderEndpoints(Server);
+        }
 
-        // Act
-        var response = await client.SendAsync(request);
-
-        // Assert
-        Assert.True(response.IsSuccessStatusCode);
-        AssertLogContainsAll(
-            "Null or empty Content-Type header",
-            "Content without explicit type",
-            "POST",
-            "/post"
-        );
-    }
-
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Handle_Binary_Content()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
-        var binaryData = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }; // PNG header
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Log_404_Error_Response()
         {
-            Content = new ByteArrayContent(binaryData)
-        };
-        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            // Arrange
+            var handler = CreateTestHandler();
 
-        // Act
-        var response = await client.SendAsync(request);
+            // Act
+            using (var client = new HttpClient(handler))
+            {
+                var response = await client.GetAsync($"{ServerUrl}/error/404");
 
-        // Assert
-        Assert.True(response.IsSuccessStatusCode);
-        AssertLogContainsAll(
-            "application/octet-stream",
-            "POST",
-            "/post",
-            "Request:",
-            "Response:"
-        );
-    }
+                // Assert
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                AssertLogContainsAll(
+                    "GET",
+                    "/error/404",
+                    "404",
+                    "Not Found",
+                    "Request:",
+                    "Response:"
+                );
+            }
+        }
 
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Handle_Chinese_Content()
-    {
-        // Arrange
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
-        var chineseContent = "这是中文测试内容，用于验证编码处理";
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Log_500_Error_Response()
         {
-            Content = new StringContent(chineseContent, Encoding.UTF8, "text/plain")
-        };
+            // Arrange
+            var handler = CreateTestHandler();
 
-        // Act
-        var response = await client.SendAsync(request);
+            // Act
+            using (var client = new HttpClient(handler))
+            {
+                var response = await client.GetAsync($"{ServerUrl}/error/500");
 
-        // Assert
-        Assert.True(response.IsSuccessStatusCode);
-        AssertLogContainsAll(
-            chineseContent,
-            "text/plain",
-            "POST",
-            "/post"
-        );
-    }
+                // Assert
+                Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+                AssertLogContainsAll(
+                    "GET",
+                    "/error/500",
+                    "500",
+                    "Internal Server Error",
+                    "Request:",
+                    "Response:"
+                );
+            }
+        }
 
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Handle_Unicode_JSON()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
-        var jsonWithUnicode = "{\"message\":\"Hello 世界\",\"emoji\":\"🌍\",\"special\":\"café\"}";
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Handle_Empty_Content_Type()
         {
-            Content = new StringContent(jsonWithUnicode, Encoding.UTF8, "application/json")
-        };
+            // Arrange
+            var handler = CreateTestHandler();
 
-        // Act
-        var response = await client.SendAsync(request);
+            using (var client = new HttpClient(handler))
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+                {
+                    Content = new StringContent("Content without explicit type", Encoding.UTF8)
+                };
+                // Remove content type to simulate null content type
+                request.Content.Headers.ContentType = null;
 
-        // Assert
-        Assert.True(response.IsSuccessStatusCode);
-        AssertLogContainsAll(
-            "Hello 世界",
-            "🌍",
-            "café",
-            "application/json"
-        );
-    }
+                // Act
+                var response = await client.SendAsync(request);
 
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Handle_Form_Data_With_Special_Characters()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
+                // Assert
+                Assert.True(response.IsSuccessStatusCode);
+                AssertLogContainsAll(
+                    "Null or empty Content-Type header",
+                    "Content without explicit type",
+                    "POST",
+                    "/post"
+                );
+            }
+        }
 
-        var formData = new List<KeyValuePair<string, string>>
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Handle_Binary_Content()
         {
-            new("name", "Test User"),
-            new("email", "test+user@example.com"),
-            new("description", "Special chars: @#$%^&*()"),
-            new("unicode", "Unicode: 测试用户")
-        };
-        var formContent = new FormUrlEncodedContent(formData);
+            // Arrange
+            var handler = CreateTestHandler();
+            using (var client = new HttpClient(handler))
+            {
+                var binaryData = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }; // PNG header
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+                {
+                    Content = new ByteArrayContent(binaryData)
+                };
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                // Act
+                var response = await client.SendAsync(request);
+
+                // Assert
+                Assert.True(response.IsSuccessStatusCode);
+                AssertLogContainsAll(
+                    "application/octet-stream",
+                    "POST",
+                    "/post",
+                    "Request:",
+                    "Response:"
+                );
+            }
+        }
+
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Handle_Chinese_Content()
         {
-            Content = formContent
-        };
+            // Arrange
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            var handler = CreateTestHandler();
+            using (var client = new HttpClient(handler))
+            {
+                var chineseContent = "这是中文测试内容，用于验证编码处理";
 
-        // Act
-        var response = await client.SendAsync(request);
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+                {
+                    Content = new StringContent(chineseContent, Encoding.UTF8, "text/plain")
+                };
 
-        // Assert
-        Assert.True(response.IsSuccessStatusCode);
-        AssertLogContainsAll(
-            "application/x-www-form-urlencoded",
-            "Test User",
-            "test+user@example.com",
-            "Special chars: @#$%^&*()",
-            "Unicode: 测试用户"
-        );
-    }
+                // Act
+                var response = await client.SendAsync(request);
 
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Handle_Very_Large_Request_Body()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
+                // Assert
+                Assert.True(response.IsSuccessStatusCode);
+                AssertLogContainsAll(
+                    chineseContent,
+                    "text/plain",
+                    "POST",
+                    "/post"
+                );
+            }
+        }
 
-        // Create a large string (1MB)
-        var largeContent = new string('A', 1024 * 1024);
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Handle_Unicode_JSON()
         {
-            Content = new StringContent(largeContent, Encoding.UTF8, "text/plain")
-        };
+            // Arrange
+            var handler = CreateTestHandler();
+            using (var client = new HttpClient(handler))
+            {
+                var jsonWithUnicode = "{\"message\":\"Hello 世界\",\"emoji\":\"🌍\",\"special\":\"café\"}";
 
-        // Act
-        var response = await client.SendAsync(request);
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+                {
+                    Content = new StringContent(jsonWithUnicode, Encoding.UTF8, "application/json")
+                };
 
-        // Assert
-        Assert.True(response.IsSuccessStatusCode);
-        AssertLogContainsAll(
-            "POST",
-            "/post",
-            "text/plain",
-            "Request:",
-            "Response:"
-        );
+                // Act
+                var response = await client.SendAsync(request);
 
-        // Verify that large content is handled (at least partially logged)
-        Assert.Contains(LogMessages, msg => msg.Contains("AAAA"));
-    }
+                // Assert
+                Assert.True(response.IsSuccessStatusCode);
+                AssertLogContainsAll(
+                    "Hello 世界",
+                    "🌍",
+                    "café",
+                    "application/json"
+                );
+            }
+        }
 
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Handle_Multiple_Sequential_Requests()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Handle_Form_Data_With_Special_Characters()
+        {
+            // Arrange
+            var handler = CreateTestHandler();
 
-        // Act - Make multiple sequential requests
-        await client.GetAsync($"{ServerUrl}/posts/1");
-        await client.PostAsJsonAsync($"{ServerUrl}/posts", new { title = "Test" });
-        await client.GetAsync($"{ServerUrl}/users");
+            using (var client = new HttpClient(handler))
+            {
+                var formData = new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>("name", "Test User"),
+                    new KeyValuePair<string, string>("email", "test+user@example.com"),
+                    new KeyValuePair<string, string>("description", "Special chars: @#$%^&*()"),
+                    new KeyValuePair<string, string>("unicode", "Unicode: 测试用户")
+                };
+                var formContent = new FormUrlEncodedContent(formData);
 
-        // Assert
-        var requestCount = LogMessages.Count(msg => msg.Contains("Request:"));
-        var responseCount = LogMessages.Count(msg => msg.Contains("Response:"));
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+                {
+                    Content = formContent
+                };
 
-        Assert.Equal(3, requestCount);
-        Assert.Equal(3, responseCount);
+                // Act
+                var response = await client.SendAsync(request);
 
-        AssertLogContainsAll(
-            "GET",
-            "POST",
-            "/posts/1",
-            "/posts",
-            "/users"
-        );
-    }
+                // Assert
+                Assert.True(response.IsSuccessStatusCode);
+                AssertLogContainsAll(
+                    "application/x-www-form-urlencoded",
+                    "Test User",
+                    "test+user@example.com",
+                    "Special chars: @#$%^&*()",
+                    "Unicode: 测试用户"
+                );
+            }
+        }
 
-    [Fact]
-    public async Task HttpLoggingHandler_Should_Preserve_Response_Content()
-    {
-        // Arrange
-        var handler = CreateTestHandler();
-        using var client = new HttpClient(handler);
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Handle_Very_Large_Request_Body()
+        {
+            // Arrange
+            var handler = CreateTestHandler();
 
-        // Act
-        var response = await client.GetAsync($"{ServerUrl}/posts/1");
-        var content = await response.Content.ReadAsStringAsync();
+            // Create a large string (1MB)
+            using (var client = new HttpClient(handler))
+            {
+                var largeContent = new string('A', 1024 * 1024);
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{ServerUrl}/post")
+                {
+                    Content = new StringContent(largeContent, Encoding.UTF8, "text/plain")
+                };
 
-        // Assert
-        Assert.True(response.IsSuccessStatusCode);
-        Assert.NotNull(content);
-        Assert.NotEmpty(content);
+                // Act
+                var response = await client.SendAsync(request);
 
-        // Verify the response content can still be read after logging
-        Assert.Contains("Test Post Title", content);
-        AssertLogContainsAll(
-            "GET",
-            "/posts/1",
-            "Request:",
-            "Response:"
-        );
+                // Assert
+                Assert.True(response.IsSuccessStatusCode);
+                AssertLogContainsAll(
+                    "POST",
+                    "/post",
+                    "text/plain",
+                    "Request:",
+                    "Response:"
+                );
+
+                // Verify that large content is handled (at least partially logged)
+                Assert.Contains(LogMessages, msg => msg.Contains("AAAA"));
+            }
+        }
+
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Handle_Multiple_Sequential_Requests()
+        {
+            // Arrange
+            var handler = CreateTestHandler();
+
+            // Act - Make multiple sequential requests
+            using (var client = new HttpClient(handler))
+            {
+                await client.GetAsync($"{ServerUrl}/posts/1");
+                await client.PostAsJsonAsync($"{ServerUrl}/posts", new { title = "Test" });
+                await client.GetAsync($"{ServerUrl}/users");
+
+                // Assert
+                var requestCount = LogMessages.Count(msg => msg.Contains("Request:"));
+                var responseCount = LogMessages.Count(msg => msg.Contains("Response:"));
+
+                Assert.Equal(3, requestCount);
+                Assert.Equal(3, responseCount);
+
+                AssertLogContainsAll(
+                    "GET",
+                    "POST",
+                    "/posts/1",
+                    "/posts",
+                    "/users"
+                );
+            }
+        }
+
+        [Fact]
+        public async Task HttpLoggingHandler_Should_Preserve_Response_Content()
+        {
+            // Arrange
+            var handler = CreateTestHandler();
+
+            // Act
+            using (var client = new HttpClient(handler))
+            {
+                var response = await client.GetAsync($"{ServerUrl}/posts/1");
+                var content = await response.Content.ReadAsStringAsync();
+
+                // Assert
+                Assert.True(response.IsSuccessStatusCode);
+                Assert.NotNull(content);
+                Assert.NotEmpty(content);
+
+                // Verify the response content can still be read after logging
+                Assert.Contains("Test Post Title", content);
+                AssertLogContainsAll(
+                    "GET",
+                    "/posts/1",
+                    "Request:",
+                    "Response:"
+                );
+            }
+        }
     }
 }

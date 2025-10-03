@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>net462;net48;net5.0;net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -11,7 +11,7 @@
         <Authors>Zack Yang</Authors>
         <Company>Zack Yang</Company>
         <Product>HttpMataki.NET.Auto</Product>
-        <Description>HttpMataki.NET.Auto - Automatic HTTP logging interceptor (RECOMMENDED). Zero code changes required! Automatically logs all HttpClient requests/responses using Harmony. Perfect for debugging existing applications without modifying any code. If it doesn't work on your machine, try to use 'HttpMataki.NET' instead.</Description>
+        <Description>HttpMataki.NET.Auto - Automatic HTTP logging interceptor (RECOMMENDED). Zero code changes required! Automatically logs all HttpClient requests/responses using Harmony. Perfect for debugging existing applications without modifying any code.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/yangzhongke/HttpMataki.NET</PackageProjectUrl>
         <RepositoryUrl>https://github.com/yangzhongke/HttpMataki.NET</RepositoryUrl>
