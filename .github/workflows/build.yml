@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        target-framework: ['net462', 'net48', 'net5.0', 'net9.0']
+        target-framework: ['net462', 'net48', 'net5.0', 'net9.0', 'net10.0']
     
     steps:
     - uses: actions/checkout@v4
@@ -25,6 +25,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+    - name: Setup .NET 10.0.x
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
     - name: Display .NET info
       run: dotnet --info
         

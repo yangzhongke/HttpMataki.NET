@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net462;net48;net5.0;net9.0</TargetFrameworks>
+        <TargetFrameworks>net5.0;net9.0;net462;net48;net10.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -25,7 +25,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Lib.Harmony" Version="2.4.1"/>
+        <PackageReference Include="Lib.Harmony" Version="2.4.2" />
     </ItemGroup>
 
     <ItemGroup>
